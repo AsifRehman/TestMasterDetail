@@ -1,0 +1,73 @@
+﻿@inject HttpClient http
+
+<EditForm Model="party" OnValidSubmit="OnValidSubmit">
+
+    <div class="form-group form-group-sm">
+        <label for="partytypeid">Party Type Id</label>
+        <div>
+            <InputNumber class="form-control form-control-sm" id="partytypeid" @bind-Value="@party.PartyTypeId" />
+        </div>
+@*PartyType Drop Down List--------------------------------------------------------------------------------*@
+        @if (partytypes != null)
+        {
+            <label for="partytypes">Party Type</label>
+            <div>
+                <InputSelect id="partytypes" @bind-Value="@party.PartyTypeId" class="form-select form-select-sm">
+                    @foreach (var item in partytypes)
+                    {
+                    <option value="@item.PartyTypeId">@item.PartyType</option>
+                    }
+            </InputSelect>
+        </div>
+        }
+@*PartyType Drop Down List--------------------------------------------------------------------------------*@
+
+        <div>
+            <button class="btn btn-primary btn-sm" @onclick="GetMaxPartyId" @onclick:preventDefault="true">GetMaxPartyId</button>
+        </div>
+
+        <label for="partynameid">Party Id</label>
+        <div>
+            <InputNumber class="form-control form-control-sm" id="partynameid" @bind-Value="@party.PartyNameId" />
+        </div>
+
+        <label for="name">Party Name</label>
+        <div>
+            <InputText class="form-control form-control-sm" id="partyname" @bind-Value="@party.PartyName" />
+        </div>
+    </div>
+
+    <button class="btn btn-primary btn-sm" type="submit">Send</button>
+    <button class="btn btn-secondary btn-sm" type="button" @onclick="Clear">Clear</button>
+
+</EditForm>
+
+@code {
+
+    [Parameter] public tbl_Party party { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    IEnumerable<tbl_PartyType>? partytypes { get; set; }
+    private void Clear()
+    {
+        party = new tbl_Party();
+    }
+
+   private async Task GetMaxPartyId()
+    {
+        int d = party.PartyTypeId;
+        string s = await http.GetStringAsync("http://localhost:36350/api/tbl_party/maxpartyid/" + d.ToString());
+        if (s == "0")
+            party.PartyNameId = Int32.Parse(d.ToString() + "01");
+        else
+            party.PartyNameId = Int32.Parse(s) + 1;
+
+        StateHasChanged();
+    }
+
+    protected override async void OnInitialized()
+    {
+        partytypes = Task.Run(async () => await http.GetFromJsonAsync<IEnumerable<tbl_PartyType>>("http://localhost:36350/api/tbl_partytype")).Result;
+        StateHasChanged();
+    }
+}

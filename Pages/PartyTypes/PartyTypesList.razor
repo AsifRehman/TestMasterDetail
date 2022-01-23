@@ -1,0 +1,81 @@
+﻿@page "/partytypes/list"
+@inject HttpClient http
+@inject IJSRuntime JsRuntime
+
+<h3>Party Types List</h3>
+
+<div class="form-group">
+    <a class="btn btn-success" href="partytypes/create">New Party Types</a>
+</div>
+
+@if (partytypes == null)
+{
+    <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" />
+}
+else if (partytypes.Count == 0)
+{
+    <text>There are no records to show</text>
+}
+else
+{
+    <table class="table table-sm" id="myTable">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Party Type Id</th>
+                <th>Party Type</th>
+                <th>Party Categ Id</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in partytypes)
+            {
+                <tr>
+                    <td>
+                        <a class="btn btn-sm btn-success" href="partytypes/edit/@item.PartyTypeId">Edit</a>
+                        <a class="btn btn-sm btn-danger" @onclick="()=> Del(item.PartyTypeId)">Delete</a>
+                    </td>
+                    <td>
+                        @item.PartyTypeId.ToString().Substring(0,3)-@item.PartyTypeId.ToString().Substring(3,2)
+                    </td>
+                    <td>
+                        @item.PartyType
+                    </td>
+                    <td>
+                        @item.PartyCategId
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+
+
+@code {
+    List<tbl_PartyType> partytypes { get; set; }
+
+    async Task Del(int id)
+    {
+        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete?");
+        if (confirmed)
+        {
+            var response = await http.DeleteAsync($"http://localhost:36350/api/tbl_partytype/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                await JsRuntime.InvokeVoidAsync("alert", $"{id} Code Deleted Successfully");
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (firstRender) {
+            //var jQuery = await JsRuntime.InvokeAsync<IJSObjectReference>("$", "table");
+            //await JsRuntime.InvokeVoidAsync("DataTable");
+        }
+    }
+    protected async override Task OnInitializedAsync()
+    {
+        partytypes = await http.GetFromJsonAsync<List<tbl_PartyType>>("http://localhost:36350/api/tbl_partytype");
+    }
+}

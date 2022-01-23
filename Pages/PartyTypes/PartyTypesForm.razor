@@ -1,0 +1,68 @@
+﻿@inject HttpClient http
+
+<EditForm Model="partytype" OnValidSubmit="OnValidSubmit">
+
+    <div class="form-group form-group-sm">
+
+        <label for="partycategid">Party Categ ID</label>
+        <div>
+            <InputNumber @bind-Value="@partytype.PartyCategId" class="form-control form-control-sm" id="partycategid" />
+
+        </div>
+        @if (partycategs != null)
+        {
+            <label for="partycategid">Party Categ</label>
+            <div>
+                <InputSelect @bind-Value="@partytype.PartyCategId" class="form-select form-select-sm">
+                    @foreach (var item in partycategs)
+                    {
+                    <option value="@item.PartyCategId">@item.PartyCateg</option>
+                    }
+            </InputSelect>
+        </div>
+        }
+        <div>
+            <button class="btn btn-primary btn-sm" @onclick="GetMaxTypeId" @onclick:preventDefault="true">GetMaxTypeId</button>
+        </div>
+
+        <label for="partytypeid">partytypeid</label>
+        <div>
+            <InputNumber class="form-control form-control-sm" id="partytypeid" @bind-Value="@partytype.PartyTypeId" />
+        </div>
+
+        <label for="partytype">Party Type</label>
+        <div>
+            <InputText class="form-control form-control-sm" id="partytype" @bind-Value="@partytype.PartyType" />
+        </div>
+
+    </div>
+    <br />
+    <button class="btn btn-primary btn-sm" type="submit">Send</button>
+    <a class="btn btn-sm btn-secondary" href="partytypes">Cancel </a>
+
+</EditForm>
+
+@code {
+    [Parameter] public tbl_PartyType? partytype { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    IEnumerable<tbl_PartyCateg>? partycategs { get; set; }
+
+    private async Task GetMaxTypeId()
+    {
+        int d = partytype.PartyCategId;
+        string s = await http.GetStringAsync("http://localhost:36350/api/tbl_partytype/maxtypeid/" + d.ToString());
+        if (s == "0")
+            partytype.PartyTypeId = Int32.Parse(d.ToString() + "01");
+        else
+            partytype.PartyTypeId = Int32.Parse(s) + 1;
+
+        StateHasChanged();
+    }
+
+    protected override async void OnInitialized()
+    {
+        partycategs = Task.Run(async () => await http.GetFromJsonAsync<IEnumerable<tbl_PartyCateg>>("http://localhost:36350/api/tbl_partycateg")).Result;
+        StateHasChanged();
+    }
+}

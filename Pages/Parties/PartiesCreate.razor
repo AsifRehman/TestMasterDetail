@@ -1,0 +1,35 @@
+﻿@page "/parties/create"
+@inject HttpClient http
+@inject NavigationManager navigationManager
+@inject IJSRuntime JsRuntime
+
+
+<h3>Party Create</h3>
+
+<PartiesForm party="party" OnValidSubmit="OnValidSubmit" />
+
+@code {
+    tbl_Party party = new tbl_Party();
+
+    private async Task OnValidSubmit()
+    {
+        var response = await http.PostAsJsonAsync("http://localhost:36350/api/tbl_party", party);
+
+        var body = await response.Content.ReadAsStringAsync();
+
+        if (response.IsSuccessStatusCode)
+        {
+            // success
+            await JsRuntime.InvokeVoidAsync("alert", body); // Alert
+            Console.WriteLine($"the id of the user is: {body}");
+            navigationManager.NavigateTo("/parties/create");
+        }
+        else
+        {
+            await JsRuntime.InvokeVoidAsync("alert", body); // Alert
+
+            // not success
+            Console.WriteLine(body);
+        }
+    }
+}

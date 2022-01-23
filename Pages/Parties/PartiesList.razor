@@ -1,0 +1,82 @@
+﻿@page "/parties/list"
+@inject HttpClient http
+@inject IJSRuntime JsRuntime
+
+<h3>Party Types List</h3>
+
+<div class="form-group">
+    <a class="btn btn-success" href="parties/create">New Party Types</a>
+</div>
+
+@if (parties == null)
+{
+    <img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" />
+}
+else if (parties.Count == 0)
+{
+    <text>There are no records to show</text>
+}
+else
+{
+    <table class="table table-sm" id="myTable">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Party Name Id</th>
+                <th>Party Name</th>
+                <th>Party Type Id</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in parties)
+            {
+                <tr>
+                    <td>
+                        <a class="btn btn-sm btn-success" href="parties/edit/@item.PartyNameId">Edit</a>
+                        <a class="btn btn-sm btn-danger" @onclick="()=> Del(item.PartyNameId)">Delete</a>
+                    </td>
+                    <td>
+                        @item.PartyNameId
+@*                        @item.PartyNameId.ToString().Substring(0,1)-@item.PartyNameId.ToString().Substring(1,1)-@item.PartyNameId.ToString().Substring(2,1)-@item.PartyNameId.ToString().Substring(3,2)-@item.PartyNameId.ToString().Substring(5,2)
+*@                    </td>
+                    <td>
+                        @item.PartyName
+                    </td>
+                    <td>
+                        @item.PartyTypeId.ToString().Substring(0,3)-@item.PartyTypeId.ToString().Substring(3,2)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+
+
+@code {
+    List<tbl_Party> parties { get; set; }
+
+    async Task Del(long id)
+    {
+        bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete?");
+        if (confirmed)
+        {
+            var response = await http.DeleteAsync($"http://localhost:36350/api/tbl_party/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                await JsRuntime.InvokeVoidAsync("alert", $"{id} Code Deleted Successfully");
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (firstRender) {
+            //var jQuery = await JsRuntime.InvokeAsync<IJSObjectReference>("$", "table");
+            //await JsRuntime.InvokeVoidAsync("DataTable");
+        }
+    }
+    protected async override Task OnInitializedAsync()
+    {
+        parties = await http.GetFromJsonAsync<List<tbl_Party>>("http://localhost:36350/api/tbl_party");
+    }
+}

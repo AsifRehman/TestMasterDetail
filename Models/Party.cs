@@ -10,6 +10,8 @@ namespace TestMasterDetail.Models
         [Key]
         public int PartyNameId { get; set; }
         public string PartyName { get; set; } = "";
+
         public int PartyTypeId { get; set; }
+        public tbl_PartyType PartyType { get; set; }
     }
 }

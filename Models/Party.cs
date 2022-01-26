@@ -12,6 +12,6 @@ namespace TestMasterDetail.Models
         public string PartyName { get; set; } = "";
 
         public int PartyTypeId { get; set; }
-        public tbl_PartyType PartyType { get; set; }
+        public tbl_PartyType? PartyType { get; set; }
     }
 }

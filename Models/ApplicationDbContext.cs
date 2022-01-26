@@ -13,6 +13,8 @@ namespace TestMasterDetail.Models
         public DbSet<Address> Addresses { get; set; }
         public DbSet<tbl_Party> tbl_Party { get; set; }
         public DbSet<tbl_PartyType> tbl_PartyType { get; set; }
-        public DbSet<TestMasterDetail.Models.tbl_PartyCateg> tbl_PartyCateg { get; set; }
+        public DbSet<tbl_PartyCateg> tbl_PartyCateg { get; set; }
+        public DbSet<tbl_Ledger> tbl_Ledger { get; set; }
+
     }
 }

@@ -1,0 +1,70 @@
+﻿@inject HttpClient http
+
+<EditForm Model="ledger" OnValidSubmit="OnValidSubmit">
+
+    <div class="form-group form-group-sm">
+        <label for="id">Id</label>
+        <div>
+            <InputNumber class="form-control form-control-sm" id="id" @bind-Value="@ledger.Id" />
+        </div>
+
+        <label for="VocNo">VocNo</label>
+        <div>
+            <InputNumber class="form-control form-control-sm" id="VocNo" @bind-Value="@ledger.VocNo" />
+        </div>
+
+        <label for="Date">Date</label>
+        <div>
+            <InputDate class="form-control form-control-sm" id="Date" @bind-Value="@ledger.Date" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-1">
+            <label for="SrNo">SrNo</label>
+            <div>
+                <InputNumber class="form-control form-control-sm" id="SrNo" @bind-Value="@ledger.SrNo" />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label for="Party">Party</label>
+            <div>
+                <InputNumber class="form-control form-control-sm" id="Party" @bind-Value="@ledger.PartyId" />
+            </div>
+        </div>
+        <div class="col-md-5">
+            <label for="Description">Description</label>
+            <div>
+                <InputText class="form-control form-control-sm" id="Description" @bind-Value="@ledger.Description" />
+            </div>
+
+        </div>
+        <div class="col-md-2">
+            <label for="NetCredit">NetCredit</label>
+            <div>
+                <InputNumber class="form-control form-control-sm" id="NetCredit" @bind-Value="@ledger.NetCredit" />
+            </div>
+
+        </div>
+    </div>
+
+    <button class="btn btn-primary btn-sm" type="submit">Send</button>
+    <button class="btn btn-secondary btn-sm" type="button" @onclick="Clear">Clear</button>
+
+</EditForm>
+
+@code {
+
+    [Parameter] public tbl_Ledger ledger { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    private void Clear()
+    {
+        ledger = new tbl_Ledger();
+    }
+
+
+    protected override async void OnInitialized()
+    {
+        StateHasChanged();
+    }
+}

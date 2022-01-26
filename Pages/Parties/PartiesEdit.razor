@@ -1,0 +1,55 @@
+﻿@page "/parties/edit/{PartyId:int}"
+@inject HttpClient http
+@inject NavigationManager navigationManager
+@inject IJSRuntime JsRuntime
+
+
+<h3>Party Create</h3>
+
+<PartiesForm party="party" OnValidSubmit="OnValidSubmit" />
+
+@code {
+    tbl_Party party = new tbl_Party();
+    [Parameter] public int PartyId { get; set; }
+
+    private async Task OnValidSubmit()
+    {
+        var response = await http.PutAsJsonAsync($"http://localhost:36350/api/tbl_party/{PartyId}", party);
+
+        var body = await response.Content.ReadAsStringAsync();
+
+        if (response.IsSuccessStatusCode)
+        {
+            // success
+            await JsRuntime.InvokeVoidAsync("alert", "sucess"); // Alert
+            Console.WriteLine($"the id of the user is: {body}");
+            party = new tbl_Party();
+            //navigationManager.NavigateTo("/partytypes/create");
+        }
+        else
+        {
+            await JsRuntime.InvokeVoidAsync("alert", body); // Alert
+
+            // not success
+            Console.WriteLine(body);
+        }
+    }
+
+    protected override async void OnInitialized()
+    {
+        var response = await http.GetAsync($"http://localhost:36350/api/tbl_party/{PartyId}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            party = JsonSerializer.Deserialize<tbl_Party>(await response.Content.ReadAsStringAsync(), new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+            StateHasChanged();
+        }
+        else
+        {
+            // Error, likely a 404
+            navigationManager.NavigateTo("parties/list");
+        }
+        
+    }
+
+}
